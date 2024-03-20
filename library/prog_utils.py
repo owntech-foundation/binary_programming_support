@@ -28,9 +28,8 @@ import subprocess
 import re
 import time
 import serial
-import common
-
-import progress_bar
+from library import common
+from library import progress_bar
 
 def touch_serial_port(port, baudrate):
     """
