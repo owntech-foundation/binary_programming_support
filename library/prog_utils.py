@@ -28,6 +28,7 @@ import subprocess
 import re
 import time
 import serial
+import os
 from library import common
 from library import progress_bar
 
@@ -186,7 +187,10 @@ def reset_bootloader(port):
     """
 
     try:
-        ret = execute_cmd_prog("./3rdParties/mcumgr.exe --conntype=serial --connstring=dev=" + port + ",baud=115200,mtu=128 reset", timeout=10)
+        if ( os.name == 'posix' ):
+            ret = execute_cmd_prog("./3rdParties/mcumgr --conntype=serial --connstring=dev=" + port + ",baud=115200,mtu=128 reset", timeout=10)
+        else:
+            ret = execute_cmd_prog("./3rdParties/mcumgr.exe --conntype=serial --connstring=dev=" + port + ",baud=115200,mtu=128 reset", timeout=10)
         if (ret[0] == 0):
             print(f"Reset target")
         else:
@@ -208,7 +212,10 @@ def check_hash_bootloader(port, desired_hash):
     """
     patternImageInfo = re.compile(r"\s*(image=(\d))\s(slot=(\d))\n\s*(version:\s(\d.\d.\d))\n\s*(bootable:\s(.*))\n\s*(flags:\s(.*))\n\s*(hash:\s([0-9a-f]{64}))")
     try:
-        ret = execute_cmd_prog("./3rdParties/mcumgr.exe --conntype=serial --connstring=dev=" + port + ",baud=115200,mtu=128 image list", match_pattern_end=patternImageInfo, match_callback_end=match_info, debug=False, timeout=10)
+        if ( os.name == 'posix' ):
+            ret = execute_cmd_prog("./3rdParties/mcumgr --conntype=serial --connstring=dev=" + port + ",baud=115200,mtu=128 image list", match_pattern_end=patternImageInfo, match_callback_end=match_info, debug=False, timeout=10)
+        else:
+            ret = execute_cmd_prog("./3rdParties/mcumgr.exe --conntype=serial --connstring=dev=" + port + ",baud=115200,mtu=128 image list", match_pattern_end=patternImageInfo, match_callback_end=match_info, debug=False, timeout=10)
         if (ret[0] == 0):
             print(f"\nBootloader is here")
         else:
@@ -241,7 +248,10 @@ def flash_prog_bootloader(firm_bin, port):
 
     patternBootloader = re.compile(r"(\d+\.?\d*) (\w+B|B) \/ (\d+\.?\d*) (\w+B|B) (?:\[.*?\]|).*?(\d+\.?\d*)%(?: (\d+\.?\d*) ((?:\w+B|B)\/s)|)")
     try:
-        ret = execute_cmd_prog("./3rdParties/mcumgr.exe --conntype=serial --connstring=dev=" + port + ",baud=115200,mtu=128 image upload -e " + firm_bin, match_pattern_linebline=patternBootloader, match_callback_linebline=match_bootloader_action, debug=False, timeout=10)
+        if ( os.name == 'posix' ):
+            ret = execute_cmd_prog("./3rdParties/mcumgr --conntype=serial --connstring=dev=" + port + ",baud=115200,mtu=128 image upload -e " + firm_bin, match_pattern_linebline=patternBootloader, match_callback_linebline=match_bootloader_action, debug=False, timeout=10)
+        else:
+            ret = execute_cmd_prog("./3rdParties/mcumgr.exe --conntype=serial --connstring=dev=" + port + ",baud=115200,mtu=128 image upload -e " + firm_bin, match_pattern_linebline=patternBootloader, match_callback_linebline=match_bootloader_action, debug=False, timeout=10)
         if (ret[0] == 0):
             print(f"\nSuccessfully flashed {firm_bin}")
             return 0 #yes
